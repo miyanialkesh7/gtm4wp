@@ -715,47 +715,7 @@ final class PageDataLayer {
 	 * @return array{0:string,1:string} The before and after JavaScript fragments.
 	 */
 	private function purchase_dedupe_guard( \WC_Order $order ): array {
-		$order_number = esc_js( $order->get_order_number() );
-
-		$before_purchase_dl_push = '
-			// Check whether this order has been already tracked in this browser.
-
-			// Read order id already tracked from cookies or local storage.
-			let gtm4wp_orderid_tracked = "";
-
-			if ( !window.localStorage ) {
-				let gtm4wp_cookie = "; " + document.cookie;
-				let gtm4wp_cookie_parts = gtm4wp_cookie.split( "; gtm4wp_orderid_tracked=" );
-				if ( gtm4wp_cookie_parts.length == 2 ) {
-					gtm4wp_orderid_tracked = gtm4wp_cookie_parts.pop().split(";").shift();
-				}
-			} else {
-				gtm4wp_orderid_tracked = window.localStorage.getItem( "gtm4wp_orderid_tracked" );
-			}
-
-			// Check whether this order has been already tracked before in this browser.
-			let gtm4wp_order_already_tracked = false;
-			if ( gtm4wp_orderid_tracked && ( "' . $order_number . '" == gtm4wp_orderid_tracked ) ) {
-				gtm4wp_order_already_tracked = true;
-			}
-
-			// only push purchase action if not tracked already.
-			if ( !gtm4wp_order_already_tracked ) {';
-
-		$after_purchase_dl_push = '
-			}
-
-			// Store order ID to prevent tracking this purchase again.
-			if ( !window.localStorage ) {
-				var gtm4wp_orderid_cookie_expire = new Date();
-				gtm4wp_orderid_cookie_expire.setTime( gtm4wp_orderid_cookie_expire.getTime() + (365*24*60*60*1000) );
-				var gtm4wp_orderid_cookie_expires_part = "expires=" + gtm4wp_orderid_cookie_expire.toUTCString();
-				document.cookie = "gtm4wp_orderid_tracked=" + "' . $order_number . '" + ";" + gtm4wp_orderid_cookie_expires_part + ";path=/";
-			} else {
-				window.localStorage.setItem( "gtm4wp_orderid_tracked", "' . $order_number . '" );
-			}';
-
-		return array( $before_purchase_dl_push, $after_purchase_dl_push );
+		return \GTM4WP\Ecommerce\Helpers::purchase_dedupe_guard( (string) $order->get_order_number() );
 	}
 
 	/**
