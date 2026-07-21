@@ -146,6 +146,7 @@ final class ModuleConsistencyTest extends TestCase {
 				'consent',
 				'contact-form-7',
 				'woocommerce',
+				'edd',
 				'amp',
 				'blacklist',
 			),
